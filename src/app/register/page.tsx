@@ -8,16 +8,29 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import Link from 'next/link'
+import axios from 'axios'
+import ConfettiExplosion from "react-confetti-explosion";
 
 export default function RegisterPage() {
   const { register, handleSubmit, formState: { errors } } = useForm()
   const [healthId, setHealthId] = useState('')
+  const [fetchErrors, setfetchErrors] = useState('')
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (body) => {
     // Here you would typically send the data to your backend
-    console.log(data)
+    // console.log(data)
+    axios.post("http://developer.adi:5000/auth/v1/register", body)
+    .then((res)=>{
+      console.log(res.data)
+    setHealthId(res.data.healthId)
+      if(res.data.Error){
+        setfetchErrors(res.data.msg)
+      }
+    })
+    .catch((err)=>{
+      console.log(err)
+    })
     // For demo purposes, we'll just generate a random health ID
-    setHealthId(`HC${Math.random().toString(36).substr(2, 9).toUpperCase()}`)
   }
 
   return (
@@ -35,8 +48,13 @@ export default function RegisterPage() {
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
-                <Input id="name" {...register("name", { required: "Name is required" })} />
+                <Label htmlFor="name">First Name</Label>
+                <Input id="name" {...register("firstName", { required: "First Name is required" })} />
+                {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="name">Last Name</Label>
+                <Input id="name" {...register("lastName", { required: "Last Name is required" })} />
                 {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
               </div>
               <div className="space-y-2">
@@ -49,6 +67,9 @@ export default function RegisterPage() {
                 <Input id="password" type="password" {...register("password", { required: "Password is required", minLength: { value: 8, message: "Password must be at least 8 characters" } })} />
                 {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
               </div>
+
+              {fetchErrors && <p className="text-red-500 text-sm">{fetchErrors}</p>}
+
               <Button type="submit" className="w-full">Register</Button>
             </form>
           </CardContent>
@@ -58,6 +79,15 @@ export default function RegisterPage() {
             </p>
           </CardFooter>
         </Card>
+
+        {healthId && (
+            <ConfettiExplosion
+              particleCount={250}
+              duration={3000}
+              width={1600}
+              force={0.8}
+            />
+          )}
       </motion.div>
       {healthId && (
         <motion.div
