@@ -1,0 +1,275 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import Image from 'next/image'
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Bell, FileText, Upload, Download, Search, Settings, LogOut, Moon, Sun } from 'lucide-react'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+
+const healthData = [
+  { month: 'Jan', cholesterol: 180, bloodPressure: 120 },
+  { month: 'Feb', cholesterol: 200, bloodPressure: 125 },
+  { month: 'Mar', cholesterol: 190, bloodPressure: 118 },
+  { month: 'Apr', cholesterol: 185, bloodPressure: 122 },
+  { month: 'May', cholesterol: 195, bloodPressure: 116 },
+  { month: 'Jun', cholesterol: 188, bloodPressure: 120 },
+]
+
+export default function UserDashboard() {
+  const [healthScore, setHealthScore] = useState(78)
+  const [darkMode, setDarkMode] = useState(false)
+
+  useEffect(() => {
+    // Check if dark mode preference is stored in localStorage
+    const storedDarkMode = localStorage.getItem('darkMode')
+    if (storedDarkMode !== null) {
+      setDarkMode(JSON.parse(storedDarkMode))
+    }
+    setHealthScore(98)
+  }, [])
+
+  useEffect(() => {
+    // Update localStorage when dark mode changes
+    localStorage.setItem('darkMode', JSON.stringify(darkMode))
+    if (darkMode) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  }, [darkMode])
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode)
+  }
+
+  const fadeIn = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.6 }
+  }
+
+  return (
+    <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900' : 'bg-gradient-to-r from-blue-100 to-teal-100'}`}>
+      <header className={`${darkMode ? 'bg-gray-800' : 'bg-white'} shadow`}>
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center">
+            <Image src="/placeholder.svg" alt="CareCloud Logo" width={40} height={40} className="mr-2" />
+            <h1 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-blue-600'}`}>CareCloud</h1>
+          </div>
+          <nav className="flex items-center space-x-4">
+            <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
+              {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            </Button>
+            <Button variant="ghost" size="icon">
+              <Bell className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon">
+              <Settings className="h-5 w-5" />
+            </Button>
+            <Avatar>
+              <AvatarImage src="https://github.com/shadcn.png" alt="User" />
+              <AvatarFallback>JD</AvatarFallback>
+            </Avatar>
+          </nav>
+        </div>
+      </header>
+
+      <main className="container mx-auto px-4 py-8">
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          variants={{
+            initial: { opacity: 0 },
+            animate: { opacity: 1, transition: { staggerChildren: 0.1 } }
+          }}
+          initial="initial"
+          animate="animate"
+        >
+          <motion.div variants={fadeIn} className="md:col-span-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className={darkMode ? 'text-white' : 'text-blue-600'}>Welcome back, John Doe</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className={`mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Your Health ID: HC123456789</p>
+                <div className="flex items-center justify-between mb-2">
+                  <span className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Overall Health Score</span>
+                  <span className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{healthScore}/100</span>
+                </div>
+                <Progress value={healthScore} className="w-full" />
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div variants={fadeIn}>
+            <Card>
+              <CardHeader>
+                <CardTitle className={darkMode ? 'text-white' : 'text-blue-600'}>Quick Actions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  <Button variant="outline" className={`flex flex-col items-center justify-center h-24 ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-blue-50 hover:bg-blue-100'}`}>
+                    <FileText className={`h-6 w-6 mb-2 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+                    <span>View Records</span>
+                  </Button>
+                  <Button variant="outline" className={`flex flex-col items-center justify-center h-24 ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-blue-50 hover:bg-blue-100'}`}>
+                    <Upload className={`h-6 w-6 mb-2 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+                    <span>Upload Files</span>
+                  </Button>
+                  <Button variant="outline" className={`flex flex-col items-center justify-center h-24 ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-blue-50 hover:bg-blue-100'}`}>
+                    <Download className={`h-6 w-6 mb-2 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+                    <span>Download Reports</span>
+                  </Button>
+                  <Button variant="outline" className={`flex flex-col items-center justify-center h-24 ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-blue-50 hover:bg-blue-100'}`}>
+                    <Search className={`h-6 w-6 mb-2 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+                    <span>Search Diagnoses</span>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div variants={fadeIn} className="md:col-span-3">
+            <Card>
+              <CardHeader>
+                <CardTitle className={darkMode ? 'text-white' : 'text-blue-600'}>Health Trends</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={healthData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? '#374151' : '#e5e7eb'} />
+                    <XAxis dataKey="month" stroke={darkMode ? '#9ca3af' : '#4b5563'} />
+                    <YAxis yAxisId="left" stroke={darkMode ? '#9ca3af' : '#4b5563'} />
+                    <YAxis yAxisId="right" orientation="right" stroke={darkMode ? '#9ca3af' : '#4b5563'} />
+                    <Tooltip contentStyle={darkMode ? { backgroundColor: '#1f2937', border: 'none' } : {}} />
+                    <Line yAxisId="left" type="monotone" dataKey="cholesterol" stroke="#3b82f6" activeDot={{ r: 8 }} />
+                    <Line yAxisId="right" type="monotone" dataKey="bloodPressure" stroke="#14b8a6" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div variants={fadeIn} className="md:col-span-3">
+            <Card>
+              <CardHeader>
+                <CardTitle className={darkMode ? 'text-white' : 'text-blue-600'}>Recent Diagnoses and Files</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="diagnoses">
+                  <TabsList className={darkMode ? 'bg-gray-700' : 'bg-blue-100'}>
+                    <TabsTrigger value="diagnoses" className={darkMode ? 'data-[state=active]:bg-gray-800' : 'data-[state=active]:bg-white'}>Diagnoses</TabsTrigger>
+                    <TabsTrigger value="files" className={darkMode ? 'data-[state=active]:bg-gray-800' : 'data-[state=active]:bg-white'}>Medical Files</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="diagnoses">
+                    <ul className="space-y-4">
+                      <li className="flex items-center justify-between">
+                        <div>
+                          <p className={`font-medium ${darkMode ? 'text-white' : 'text-blue-600'}`}>Annual Check-up</p>
+                          <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Dr. Sarah Smith - June 1, 2023</p>
+                        </div>
+                        <Button variant="outline" size="sm" className={darkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-blue-50 hover:bg-blue-100 text-blue-600'}>View Details</Button>
+                      </li>
+                      <li className="flex items-center justify-between">
+                        <div>
+                          <p className={`font-medium ${darkMode ? 'text-white' : 'text-blue-600'}`}>Blood Test Results</p>
+                          <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Lab Corp - May 15, 2023</p>
+                        </div>
+                        <Button variant="outline" size="sm" className={darkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-blue-50 hover:bg-blue-100 text-blue-600'}>View Details</Button>
+                      </li>
+                    </ul>
+                  </TabsContent>
+                  <TabsContent value="files">
+                    <ul className="space-y-4">
+                      <li className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <FileText className={`h-5 w-5 mr-2 ${darkMode ? 'text-blue-400' : 'text-blue-500'}`} />
+                          <div>
+                            <p className={`font-medium ${darkMode ? 'text-white' : 'text-blue-600'}`}>Chest X-ray</p>
+                            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Uploaded on June 5, 2023</p>
+                          </div>
+                        </div>
+                        <Button variant="outline" size="sm" className={darkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-blue-50 hover:bg-blue-100 text-blue-600'}>View File</Button>
+                      </li>
+                      <li className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <FileText className={`h-5 w-5 mr-2 ${darkMode ? 'text-blue-400' : 'text-blue-500'}`} />
+                          <div>
+                            <p className={`font-medium ${darkMode ? 'text-white' : 'text-blue-600'}`}>MRI Scan - Lower Back</p>
+                            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Uploaded on May 20, 2023</p>
+                          </div>
+                        </div>
+                        <Button variant="outline" size="sm" className={darkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-blue-50 hover:bg-blue-100 text-blue-600'}>View File</Button>
+                      </li>
+                    </ul>
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div variants={fadeIn} className="md:col-span-3">
+            <Card>
+              <CardHeader>
+                <CardTitle className={darkMode ? 'text-white' : 'text-blue-600'}>File Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-between items-center mb-4">
+                  <input type="text" placeholder="Search files..." className={`border rounded px-2 py-1 w-64 ${darkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300'}`} />
+                  <Button className={darkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-600 hover:bg-blue-700'}>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload New File
+                  </Button>
+                </div>
+                <table className="w-full">
+                  <thead>
+                    <tr className={darkMode ? 'bg-gray-800' : 'bg-blue-50'}>
+                      <th className={`text-left p-2 ${darkMode ? 'text-gray-300' : 'text-blue-600'}`}>File Name</th>
+                      <th className={`text-left p-2 ${darkMode ? 'text-gray-300' : 'text-blue-600'}`}>Type</th>
+                      <th className={`text-left p-2 ${darkMode ? 'text-gray-300' : 'text-blue-600'}`}>Date</th>
+                      <th className={`text-left p-2 ${darkMode ? 'text-gray-300' : 'text-blue-600'}`}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className={darkMode ? 'border-b border-gray-700' : 'border-b border-gray-200'}>
+                      <td className={`p-2 ${darkMode ? 'text-gray-300' : 'text-gray-900'}`}>Annual_Checkup_2023.pdf</td>
+                      <td className={`p-2 ${darkMode ? 'text-gray-300' : 'text-gray-900'}`}>PDF</td>
+                      <td className={`p-2 ${darkMode ? 'text-gray-300' : 'text-gray-900'}`}>June 1, 2023</td>
+                      <td className="p-2">
+                        <Button variant="ghost" size="sm" className={darkMode ? 'text-blue-400' : 'text-blue-600'}>View</Button>
+                        <Button variant="ghost" size="sm" className={darkMode ? 'text-blue-400' : 'text-blue-600'}>Download</Button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className={`p-2 ${darkMode ? 'text-gray-300' : 'text-gray-900'}`}>Chest_Xray_June2023.jpg</td>
+                      <td className={`p-2 ${darkMode ? 'text-gray-300' : 'text-gray-900'}`}>Image</td>
+                      <td className={`p-2 ${darkMode ? 'text-gray-300' : 'text-gray-900'}`}>June 5, 2023</td>
+                      <td className="p-2">
+                        <Button variant="ghost" size="sm" className={darkMode ? 'text-blue-400' : 'text-blue-600'}>View</Button>
+                        <Button variant="ghost" size="sm" className={darkMode ? 'text-blue-400' : 'text-blue-600'}>Download</Button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </motion.div>
+      </main>
+
+      <footer className={`${darkMode ? 'bg-gray-800' : 'bg-white'} shadow mt-8`}>
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>&copy; 2023 CareCloud. All rights reserved.</p>
+          <Button variant="ghost" size="sm" className="text-red-600">
+            <LogOut className="h-4 w-4 mr-2" />
+            Logout
+          </Button>
+        </div>
+      </footer>
+    </div>
+  )
+}

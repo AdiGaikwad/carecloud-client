@@ -34,10 +34,10 @@ export default function LandingPage() {
             transition={{ duration: 0.5 }}
             className="space-x-4"
           >
-            <Link href="/login">
+            <Link href="/auth/login">
               <Button variant="outline">Log In</Button>
             </Link>
-            <Link href="/register">
+            <Link href="/auth/register">
               <Button>Sign Up</Button>
             </Link>
           </motion.div>
@@ -48,7 +48,7 @@ export default function LandingPage() {
         <motion.section className="text-center mb-16" {...fadeIn}>
           <h2 className="text-5xl font-bold mb-4">Your Health, Connected and Secured</h2>
           <p className="text-xl mb-8">Experience a new era of healthcare management with CareCloud. Securely store, access, and share your medical records anytime, anywhere.</p>
-          <Link href="/register">
+          <Link href="/auth/register">
             <Button size="lg" className="text-lg px-8">
               Start Your Health Journey <ArrowRight className="ml-2" />
             </Button>
@@ -180,7 +180,7 @@ export default function LandingPage() {
         <motion.section className="text-center" {...fadeIn}>
           <h2 className="text-3xl font-bold mb-4">Ready to take control of your health data?</h2>
           <p className="text-xl mb-8">Join CareCloud today and experience a new way of managing your health information.</p>
-          <Link href="/register">
+          <Link href="/auth/register">
             <Button size="lg" className="text-lg px-8">
               Create Your Free Account
             </Button>
