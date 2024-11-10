@@ -38,6 +38,7 @@ export default function LoginPage() {
           setfetchErrors(res.data.msg);
         }
         if(res.data.token){
+          window.location.href = "/user/dashboard"
           document.cookie = `token=${res.data.token}`
           window.localStorage.setItem("token", res.data.token)
         }
