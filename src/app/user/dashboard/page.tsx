@@ -9,16 +9,27 @@ import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Bell,
   FileText,
   Upload,
   Download,
   Search,
-  Settings,
   LogOut,
   Moon,
   Sun,
 } from "lucide-react";
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 import {
   LineChart,
   Line,
@@ -30,6 +41,7 @@ import {
 } from "recharts";
 import axios from "axios";
 import { useAuth } from "@/context/AuthContext";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const AUTH_DOMAIN = "http://developer.adi:5000";
 
@@ -45,8 +57,11 @@ const healthData = [
 export default function UserDashboard() {
   const [healthScore, setHealthScore] = useState(78);
   const [darkMode, setDarkMode] = useState(true);
-  const {user, loading} = useAuth();
+  const { user, loading } = useAuth();
 
+  if (!user && !loading) {
+    window.location.href = "/auth/login";
+  }
 
   // const fetchUserData = async () => {
   //   const token = window.localStorage.getItem("token");
@@ -63,7 +78,7 @@ export default function UserDashboard() {
       setDarkMode(JSON.parse(storedDarkMode));
     }
     // fetchUserData();
-   
+
     setHealthScore(98);
   }, []);
 
@@ -77,10 +92,9 @@ export default function UserDashboard() {
     }
   }, [darkMode]);
 
-
   useEffect(() => {
-    console.log(user)
-  }, [user])
+    console.log(user);
+  }, [user]);
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
@@ -104,10 +118,10 @@ export default function UserDashboard() {
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center">
             <Image
-              src="/placeholder.svg"
+              src="/image.png"
               alt="CareCloud Logo"
-              width={40}
-              height={40}
+              width={80}
+              height={80}
               className="mr-2"
             />
             <h1
@@ -126,12 +140,12 @@ export default function UserDashboard() {
                 <Moon className="h-5 w-5" />
               )}
             </Button>
-            <Button variant="ghost" size="icon">
+            {/* <Button variant="ghost" size="icon">
               <Bell className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon">
+            </Button> */}
+            {/* <Button variant="ghost" size="icon">
               <Settings className="h-5 w-5" />
-            </Button>
+            </Button> */}
             <Avatar>
               <AvatarImage src="https://github.com/shadcn.png" alt="User" />
               <AvatarFallback>JD</AvatarFallback>
@@ -142,7 +156,7 @@ export default function UserDashboard() {
 
       <main className="container mx-auto px-4 py-8">
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-col-3 gap-4"
           variants={{
             initial: { opacity: 0 },
             animate: { opacity: 1, transition: { staggerChildren: 0.1 } },
@@ -156,17 +170,27 @@ export default function UserDashboard() {
                 <CardTitle
                   className={darkMode ? "text-white" : "text-blue-600"}
                 >
-                  Welcome back, {!loading && user.user.lastName}
+                  Welcome back,{" "}
+                  {!loading ? (
+                    user && user.user.firstName
+                  ) : (
+                    <Skeleton className="h-4 w-[100px]" />
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p
-                  className={`mb-4 ${
+                <span
+                  className={`mb-4 flex ${
                     darkMode ? "text-gray-300" : "text-gray-600"
                   }`}
                 >
-                  Your Health ID: {!loading && user.user.id}
-                </p>
+                  Your Health ID:
+                  {!loading ? (
+                    user && user.user.id
+                  ) : (
+                    <Skeleton className="h-6 w-[100px]" />
+                  )}
+                </span>
                 <div className="flex items-center justify-between mb-2">
                   <span
                     className={`text-sm font-medium ${
@@ -214,21 +238,43 @@ export default function UserDashboard() {
                     />
                     <span>View Records</span>
                   </Button>
-                  <Button
-                    variant="outline"
-                    className={`flex flex-col items-center justify-center h-24 ${
-                      darkMode
-                        ? "bg-gray-700 hover:bg-gray-600"
-                        : "bg-blue-50 hover:bg-blue-100"
-                    }`}
-                  >
-                    <Upload
-                      className={`h-6 w-6 mb-2 ${
-                        darkMode ? "text-blue-400" : "text-blue-600"
-                      }`}
-                    />
-                    <span>Upload Files</span>
-                  </Button>
+
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={`flex flex-col items-center justify-center h-24 ${
+                          darkMode
+                            ? "bg-gray-700 hover:bg-gray-600"
+                            : "bg-blue-50 hover:bg-blue-100"
+                        }`}
+                      >
+                        {/* Alert Dialog */}
+
+                        <Upload
+                          className={`h-6 w-6 mb-2 ${
+                            darkMode ? "text-blue-400" : "text-blue-600"
+                          }`}
+                        />
+                        <span>Upload Files</span>
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                         Error !
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Only Doctor can perform this action.
+                          Please visit nearest certified doctor
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Ok</AlertDialogCancel>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+
                   <Button
                     variant="outline"
                     className={`flex flex-col items-center justify-center h-24 ${

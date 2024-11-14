@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input-shad";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Card,
@@ -47,13 +47,13 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-100 to-teal-100">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-950 via-teal-900 to-teal-800">
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Card className="w-[350px]">
+        <Card className="w-[350px] bg-slate-950 outline-none border-0 text-gray-50">
           <CardHeader>
             <CardTitle>Register for CareCloud</CardTitle>
             <CardDescription>
@@ -67,7 +67,6 @@ export default function RegisterPage() {
                 <Label htmlFor="name">First Name</Label>
                 <Input
                   id="name"
-                  placeholder="Stephen"
                   {...register("firstName", {
                     required: "First Name is required",
                   })}
@@ -80,7 +79,6 @@ export default function RegisterPage() {
                 <Label htmlFor="name">Last Name</Label>
                 <Input
                   id="name"
-                  placeholder="Strange"
                   {...register("lastName", {
                     required: "Last Name is required",
                   })}
@@ -94,8 +92,6 @@ export default function RegisterPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="stephen@strange.com"
-
                   {...register("email", { required: "Email is required" })}
                 />
                 {errors.email && (
@@ -107,7 +103,6 @@ export default function RegisterPage() {
                 <Input
                   id="password"
                   type="password"
-                  placeholder="******"
                   {...register("password", {
                     required: "Password is required",
                     minLength: {
@@ -134,7 +129,7 @@ export default function RegisterPage() {
             <p className="text-sm text-center w-full">
               Already have an account?{" "}
               <Link
-                href="/auth/login"
+                href="/auth/doctor/login"
                 className="text-blue-500 hover:underline"
               >
                 Log in
