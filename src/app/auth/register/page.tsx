@@ -17,6 +17,7 @@ import {
 import Link from "next/link";
 import axios from "axios";
 import { Loader } from "lucide-react";
+import domains from "@/app/conf";
 
 export default function RegisterPage() {
   const {
@@ -31,7 +32,7 @@ export default function RegisterPage() {
   const onSubmit = async (body: any) => {
     setLoading(true);
     axios
-      .post("http://developer.adi:5000/auth/v1/register", body)
+      .post(`${domains.AUTH_HOST}/auth/v1/register`, body)
       .then((res) => {
         console.log(res.data);
         setHealthId(res.data.healthId);

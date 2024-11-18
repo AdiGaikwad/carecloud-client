@@ -1,7 +1,7 @@
 "use client"
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios'; // Assuming axios is used for API calls
-const AUTH_DOMAIN = "http://developer.adi:5000";
+import domains from '@/app/conf';
 
 
 
@@ -17,7 +17,7 @@ export const AuthProvider = ({ children } : any) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get(`${AUTH_DOMAIN}/auth/v1/get/user/data`, {
+        const response = await axios.get(`${domains.AUTH_HOST}/auth/v1/get/user/data`, {
             headers: {
               "Content-Type": "application/json",
             //   "Authorization": "Authorization " + 

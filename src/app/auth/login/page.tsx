@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Loader } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import domains from "@/app/conf";
 
 export default function LoginPage() {
   const {
@@ -43,7 +44,7 @@ export default function LoginPage() {
     setLoading(true);
 
     axios
-      .post("http://developer.adi:5000/auth/v1/login", body)
+      .post(`${domains.AUTH_HOST}/auth/v1/login`, body)
       .then((res) => {
         console.log(res.data);
 
@@ -52,7 +53,7 @@ export default function LoginPage() {
         }
         if(res.data.token){
           axios
-         .get("http://developer.adi:5000/auth/v1/get/user/data", {headers: {"Authorization": "Bearer " + res.data.token},
+         .get(`${domains.AUTH_HOST}/auth/v1/get/user/data`, {headers: {"Authorization": "Bearer " + res.data.token},
         withCredentials: true
         },
          )

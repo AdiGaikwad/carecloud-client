@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,20 +9,54 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Moon, Sun, ArrowLeft } from "lucide-react";
+import { Moon, Sun, ArrowLeft, Loader2 } from "lucide-react";
+import PatientIdInput from "@/components/PatientIdInput";
+import axios from "axios";
+import domains from "@/app/conf";
+import { useAuth } from "@/context/AuthContext";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 
 export default function RequestAccess() {
   const [darkMode, setDarkMode] = useState(true);
   const [patientId, setPatientId] = useState("");
+  const [fetchLoading, setFetchLoading] = useState(false);
+  const [otpDisplay, setOtpDisplay] = useState(false);
+  const { user, loading } = useAuth();
 
+  if (!loading && !user) {
+    window.location.href = "/auth/doctor/login";
+  }
+  if (!loading && user) {
+    if (user.user.role == "user") {
+      window.location.href = "/user/dashboard";
+    }
+  }
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const [type, setType] = useState("id");
+  const [type, setType] = useState("email");
 
-  const handleChange = (e:any)=>{
-    
-      setPatientId(e.target.value)
-  }
+  const handleChange = (e: any) => {
+    if (e.target.value == "") {
+      setType("email");
+    } else if (e.target.value.startsWith("CCH")) {
+      setType("id");
+    }
+    setPatientId(e.target.value);
+  };
+  const handlePatientIdChange = (value: string) => {
+    if (value == "") {
+      setType("email");
+    } else if (value.startsWith("CCH")) {
+      setType("id");
+    }
+    setPatientId(value);
+  };
+
   useEffect(() => {
     const storedDarkMode = localStorage.getItem("darkMode");
     if (storedDarkMode !== null) {
@@ -47,12 +81,43 @@ export default function RequestAccess() {
     e.preventDefault();
     setError("");
     setSuccess(false);
+    setFetchLoading(true);
 
-    // axios.post
+    const body = {
+      patientId: type == "email" ? patientId : type == "id" ? "CCH-" + patientId : patientId,
+      doctorId: user && user.user.id,
+    };
+    const token = window.localStorage.getItem("token");
+    axios
+      .post(`${domains.AUTH_HOST}/auth/v1/ask/doctor/access`, body, {
+        headers: { Authorization: "Authorization " + token },
+      })
+      .then((res) => {
+        setFetchLoading(false);
+        if (res.data.Success) {
+          setOtpDisplay(true);
+          setSuccess(true);
+          setTimeout(() => {
+          setSuccess(false);
+            
+          }, 2500);
+        }
+        if (res.data.Error && res.data.msg) {
+          setError(res.data.msg);
+        }
+      })
+      .catch((err) => {
+        setFetchLoading(false);
+        console.log(err);
+        setError(
+          "Unable to request access at the moment. Please try again later"
+        );
+      });
 
     // Here you would typically make an API call to verify the OTP and grant access
     // For this example, we'll just simulate a successful request
     if (patientId) {
+      console.log(patientId);
       setSuccess(true);
     } else {
       setError("Please fill in all fields");
@@ -108,40 +173,38 @@ export default function RequestAccess() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label
-                    htmlFor="patientId"
-                    className={darkMode ? "text-gray-300" : "text-gray-700"}
-                  >
-                    Patient ID
-                  </Label>
-                  {type == "email" ? <Input
-                    id="patientId"
-                    type="text"
-                    value={patientId}
-                    onChange={handleChange}
-                    className={darkMode ? "bg-gray-700 text-white" : "bg-white text-black"}
-                    placeholder="Enter patient ID or Email ID"
-                  /> : <div className="flex">
-                    <Input
-                    id="patientId"
-                    type="text"
-                    value={patientId}
-                    onChange={handleChange}
-                    className={darkMode ? "bg-gray-700 text-white" : "bg-white text-black"}
-                    placeholder="Enter patient ID or Email ID"
-                  /> <Input
-                  id="patientId"
-                  type="text"
-                  value={patientId}
-                  onChange={handleChange}
-                  className={darkMode ? "bg-gray-700 text-white" : "bg-white text-black"}
-                  placeholder="Enter patient ID or Email ID"
-                /> 
-                    </div>}
-                </div>
-                {/* <div>
+              {fetchLoading && !otpDisplay ? (
+                <Loader2 className="animate-spin w-20 h-20 flex justify-center text-center mx-auto" />
+              ) : !otpDisplay && !fetchLoading ? (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div>
+                    <Label
+                      htmlFor="patientId"
+                      className={darkMode ? "text-gray-300" : "text-gray-700"}
+                    >
+                      Enter Patient ID or Email ID
+                    </Label>
+                    {type == "email" ? (
+                      <Input
+                        id="patientId"
+                        type="text"
+                        onChange={handleChange}
+                        autoFocus
+                        className={
+                          darkMode
+                            ? "bg-gray-700 text-white"
+                            : "bg-white text-black"
+                        }
+                        placeholder="Enter patient ID or Email ID"
+                      />
+                    ) : (
+                      <PatientIdInput
+                        darkMode={darkMode}
+                        onChange={handlePatientIdChange}
+                      />
+                    )}
+                  </div>
+                  {/* <div>
                   <Label htmlFor="otp" className={darkMode ? 'text-gray-300' : 'text-gray-700'}>One-Time Password (OTP)</Label>
                   <Input 
                     id="otp"
@@ -152,24 +215,73 @@ export default function RequestAccess() {
                     placeholder="Enter OTP provided by patient"
                   />
                 </div> */}
-                {error && (
-                  <Alert variant="destructive">
-                    <AlertTitle>Error</AlertTitle>
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
-                )}
-                {success && (
-                  <Alert>
-                    <AlertTitle>Success</AlertTitle>
-                    <AlertDescription>
-                      Access request submitted successfully. Enter OTP
-                    </AlertDescription>
-                  </Alert>
-                )}
-                <Button type="submit" className="w-full">
-                  Submit Access Request
-                </Button>
-              </form>
+                  {error && (
+                    <Alert variant="destructive">
+                      <AlertTitle>Error</AlertTitle>
+                      <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                  )}
+                  {success && (
+                    <Alert>
+                      <AlertTitle>Success</AlertTitle>
+                      <AlertDescription>
+                        Access request submitted successfully. Enter OTP
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  <Button type="submit" className="w-full">
+                    Submit Access Request
+                  </Button>
+                </form>
+              ) : (
+                otpDisplay && (
+                  <div className=" justify-center">
+                    <div className="flex justify-center">
+                      <InputOTP maxLength={6}>
+                        <InputOTPGroup>
+                          <InputOTPSlot index={0} />
+                          <InputOTPSlot index={1} />
+                          <InputOTPSlot index={2} />
+                        </InputOTPGroup>
+                        <InputOTPSeparator />
+                        <InputOTPGroup>
+                          <InputOTPSlot index={3} />
+                          <InputOTPSlot index={4} />
+                          <InputOTPSlot index={5} />
+                        </InputOTPGroup>
+                      </InputOTP>
+                  
+                    </div>
+                    <br />
+                    <div >
+                    {success && (
+                    <Alert>
+                      <AlertTitle>Success</AlertTitle>
+                      <AlertDescription>
+                        Access request submitted successfully. Enter OTP
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  <div className="flex justify-center mt-4">
+                    
+                    <Button variant="default">
+                      Submit Otp
+                    </Button>
+                  </div>
+                    </div>
+                    <div className="flex">
+                      <Button
+                        variant="link"
+                        className={darkMode ? "text-blue-400" : "text-blue-600"}
+                        onClick={()=> setOtpDisplay(false)}
+                      >
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Change health Id or Email
+                      </Button>
+                    </div>
+                  </div>
+                )
+              )}
             </CardContent>
           </Card>
           <div className="mt-4 text-center">

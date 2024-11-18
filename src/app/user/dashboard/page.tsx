@@ -13,7 +13,6 @@ import {
   Upload,
   Download,
   Search,
-  LogOut,
   Moon,
   Sun,
 } from "lucide-react";
@@ -44,7 +43,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import HealthIdCard from "@/components/HealthIDCard";
 import Logout from "@/components/Logout";
 
-// const AUTH_DOMAIN = "http://developer.adi:5000";
 
 const healthData = [
   { month: "Jan", cholesterol: 180, bloodPressure: 120 },

@@ -8,13 +8,25 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 // import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LogOut, Moon, Sun, User, Lock } from "lucide-react";
+import { LogOut, Moon, Sun, Lock } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import Logout from "@/components/Logout";
 
 export default function DoctorDashboard() {
   const [darkMode, setDarkMode] = useState(true);
   //   const [searchQuery, setSearchQuery] = useState("");
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  useEffect(() => {
+      if(!loading && !user){
+        window.location.href = "/auth/doctor/login"
+      }
+      if(!loading && user){
+        if(user.user.role == "user"){
+        window.location.href = "/user/dashboard"
+
+        }
+      }
+  }, [user, loading])
   const greet = () => {
     const currentHour = new Date().getHours();
 
@@ -111,12 +123,12 @@ export default function DoctorDashboard() {
           <motion.div variants={fadeIn} className="md:col-span-2">
             <Card>
               <CardHeader>
-                <CardTitle
+                <span
                   className={darkMode ? "text-white" : "text-blue-600"}
                 >
                   {/* Search Patients */}
                   <h1>{greet()}</h1>
-                </CardTitle>
+                </span>
               </CardHeader>
               <CardContent>
                 <span><h1>Dr. {user && user.user.firstName} {user && user.user.lastName}</h1></span>
@@ -199,10 +211,7 @@ export default function DoctorDashboard() {
           >
             &copy; {new Date().getFullYear()} CareCloud. All rights reserved.
           </p>
-          <Button variant="ghost" size="sm" className="text-red-600">
-            <LogOut className="h-4 w-4 mr-2" />
-            Logout
-          </Button>
+        <Logout />
         </div>
       </footer>
     </div>
