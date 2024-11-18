@@ -20,7 +20,6 @@ import {
 
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -39,11 +38,13 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import axios from "axios";
+// import axios from "axios";
 import { useAuth } from "@/context/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
+import HealthIdCard from "@/components/HealthIDCard";
+import Logout from "@/components/Logout";
 
-const AUTH_DOMAIN = "http://developer.adi:5000";
+// const AUTH_DOMAIN = "http://developer.adi:5000";
 
 const healthData = [
   { month: "Jan", cholesterol: 180, bloodPressure: 120 },
@@ -63,6 +64,13 @@ export default function UserDashboard() {
     window.location.href = "/auth/login";
   }
 
+  useEffect(() => {
+    if (!loading) {
+      if (user.user.role != "user") {
+        window.location.href = "/auth/login";
+      }
+    }
+  }, [user, loading]);
   // const fetchUserData = async () => {
   //   const token = window.localStorage.getItem("token");
   //   const res = await axios.get(AUTH_DOMAIN + "/auth/v1/get/user/data", {
@@ -164,6 +172,25 @@ export default function UserDashboard() {
           initial="initial"
           animate="animate"
         >
+          <motion.div variants={fadeIn} className="md:col-span-3 w-full">
+            <Card>
+              <CardHeader>
+                <CardTitle
+                  className={darkMode ? "text-white" : "text-blue-600"}
+                >
+                  Your Health ID Card
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex justify-center">
+                <HealthIdCard
+                  patientName={user && `${user.user.firstName} ${user.user.lastName}`}
+                  healthId={user  && `${user.user.id.split("-")[0]} ${user.user.id.split("-")[1].match(/.{1,4}/g).join(" ")}`}
+                  darkMode={darkMode}
+                />
+              </CardContent>
+            </Card>
+          </motion.div>
+
           <motion.div variants={fadeIn} className="md:col-span-2">
             <Card>
               <CardHeader>
@@ -208,6 +235,8 @@ export default function UserDashboard() {
                   </span>
                 </div>
                 <Progress value={healthScore} className="w-full" />
+
+                
               </CardContent>
             </Card>
           </motion.div>
@@ -261,12 +290,10 @@ export default function UserDashboard() {
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>
-                         Error !
-                        </AlertDialogTitle>
+                        <AlertDialogTitle>Error !</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Only Doctor can perform this action.
-                          Please visit nearest certified doctor
+                          Only Doctor can perform this action. Please visit
+                          nearest certified doctor
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
@@ -717,12 +744,9 @@ export default function UserDashboard() {
               darkMode ? "text-gray-400" : "text-gray-600"
             }`}
           >
-            &copy; 2023 CareCloud. All rights reserved.
+            &copy; {new Date().getFullYear()} CareCloud. All rights reserved.
           </p>
-          <Button variant="ghost" size="sm" className="text-red-600">
-            <LogOut className="h-4 w-4 mr-2" />
-            Logout
-          </Button>
+        <Logout />
         </div>
       </footer>
     </div>

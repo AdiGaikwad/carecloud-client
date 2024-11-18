@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { ArrowRight, FileText, Lock, Users, ShieldCheck, Activity, Calendar } from 'lucide-react'
+import { ArrowRight, FileText, Lock, Users, ShieldCheck, Activity, Calendar, BriefcaseMedical } from 'lucide-react'
 
 export default function LandingPage() {
   const fadeIn = {
@@ -51,6 +51,13 @@ export default function LandingPage() {
           <Link href="/auth/register">
             <Button size="lg" className="text-lg px-8">
               Start Your Health Journey <ArrowRight className="ml-2" />
+            </Button>
+          </Link>
+        <br />
+        <br />
+          <Link href="/auth/doctor/login">
+            <Button size="lg" className="text-lg px-8 bg-teal-900 hover:bg-teal-900/90 ">
+              Doctor Portal <BriefcaseMedical className="ml-2" />
             </Button>
           </Link>
         </motion.section>

@@ -14,7 +14,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { Loader } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -24,16 +24,25 @@ export default function LoginPage() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } : any = useForm();
   const [loading, setLoading] = useState(false);
   const [fetchErrors, setfetchErrors] = useState("");
-  const { setUser } = useAuth();
+  const {user, setUser } = useAuth();
 
+
+  useEffect(() => {
+    if(!loading && user){
+      if(user.user.role == "doctor"){
+        window.location.href = "/doctor/dashboard"
+      }
+  
+    }
+    }, [user, loading])
   const onSubmit = async (body: any) => {
     setLoading(true);
 
     axios
-      .post("http://developer.adi:5000/auth/v1/login", body)
+      .post("http://developer.adi:5000/doctor/v1/login", body)
       .then((res) => {
         console.log(res.data);
 
@@ -42,7 +51,7 @@ export default function LoginPage() {
         }
         if (res.data.token) {
           axios
-            .get("http://developer.adi:5000/auth/v1/get/user/data", {
+            .get("http://developer.adi:5000/doctor/v1/doctor/data", {
               headers: { Authorization: "Bearer " + res.data.token },
               withCredentials: true,
             })
@@ -59,9 +68,9 @@ export default function LoginPage() {
             });
 
           setTimeout(() => {
-            window.location.href = "/user/dashboard";
+            window.location.href = "/doctor/dashboard";
           }, 1000);
-          document.cookie = `token=${res.data.token}`;
+          document.cookie = `token=${res.data.token}; path=/;`;
           window.localStorage.setItem("token", res.data.token);
         }
         setLoading(false);
@@ -94,6 +103,7 @@ export default function LoginPage() {
                 <Label htmlFor="email">Email or Health ID</Label>
                 <Input
                   id="email"
+                  placeholder="stephen@strange.com"
                   {...register("email", {
                     required: "Email or Health ID is required",
                   })}
@@ -107,6 +117,7 @@ export default function LoginPage() {
                 <Input
                   id="password"
                   type="password"
+                  placeholder="******"
                   {...register("password", {
                     required: "Password is required",
                   })}
@@ -127,7 +138,7 @@ export default function LoginPage() {
           </CardContent>
           <CardFooter className="flex flex-col space-y-2">
             <p className="text-sm text-center w-full">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <Link
                 href="/auth/doctor/register"
                 className="text-blue-500 hover:underline"

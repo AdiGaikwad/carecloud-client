@@ -14,7 +14,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { Loader } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -24,10 +24,20 @@ export default function LoginPage() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
-  const [loading, setLoading] = useState(false);
+  } :any = useForm();
+  const [fetchloading, setLoading] = useState(false);
   const [fetchErrors, setfetchErrors] = useState("");
-  const { setUser} = useAuth()
+  const { user, setUser, loading} = useAuth()
+
+
+  useEffect(() => {
+    if(!loading && user){
+      if(user.user.role == "user"){
+        window.location.href = "/user/dashboard"
+      }
+  
+    }
+    }, [user, loading])
 
   const onSubmit = async (body: any) => {
     setLoading(true);
@@ -63,7 +73,7 @@ export default function LoginPage() {
             
             window.location.href = "/user/dashboard"
           }, 1000);
-          document.cookie = `token=${res.data.token}`
+          document.cookie = `token=${res.data.token}; path=/`
           window.localStorage.setItem("token", res.data.token)
         }
         setLoading(false);
@@ -123,13 +133,13 @@ export default function LoginPage() {
                 <p className="text-red-500 text-sm">{fetchErrors}</p>
               )}
               <Button type="submit" className="w-full">
-              {loading ? <Loader className="animate-spin" /> : "Login" }  
+              {fetchloading ? <Loader className="animate-spin" /> : "Login" }  
               </Button>
             </form>
           </CardContent>
           <CardFooter className="flex flex-col space-y-2">
             <p className="text-sm text-center w-full">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <Link
                 href="/auth/register"
                 className="text-blue-500 hover:underline"

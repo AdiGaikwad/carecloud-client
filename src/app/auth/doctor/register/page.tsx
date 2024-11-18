@@ -23,7 +23,7 @@ export default function RegisterPage() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } : any = useForm();
   const [healthId, setHealthId] = useState("");
   const [fetchErrors, setfetchErrors] = useState("");
   const [loading, setLoading] = useState(false);
@@ -31,10 +31,10 @@ export default function RegisterPage() {
   const onSubmit = async (body: any) => {
     setLoading(true);
     axios
-      .post("http://developer.adi:5000/auth/v1/register", body)
+      .post("http://developer.adi:5000/doctor/v1/register", body)
       .then((res) => {
         console.log(res.data);
-        setHealthId(res.data.healthId);
+        setHealthId(res.data.doctorId);
         if (res.data.Error) {
           setfetchErrors(res.data.msg);
         }
@@ -67,6 +67,7 @@ export default function RegisterPage() {
                 <Label htmlFor="name">First Name</Label>
                 <Input
                   id="name"
+                  placeholder="Stephen"
                   {...register("firstName", {
                     required: "First Name is required",
                   })}
@@ -79,6 +80,7 @@ export default function RegisterPage() {
                 <Label htmlFor="name">Last Name</Label>
                 <Input
                   id="name"
+                  placeholder="Strange"
                   {...register("lastName", {
                     required: "Last Name is required",
                   })}
@@ -92,6 +94,7 @@ export default function RegisterPage() {
                 <Input
                   id="email"
                   type="email"
+                  placeholder="stephen@strange.com"
                   {...register("email", { required: "Email is required" })}
                 />
                 {errors.email && (
@@ -103,6 +106,7 @@ export default function RegisterPage() {
                 <Input
                   id="password"
                   type="password"
+                  placeholder="******"
                   {...register("password", {
                     required: "Password is required",
                     minLength: {
