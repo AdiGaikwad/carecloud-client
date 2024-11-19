@@ -7,19 +7,20 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+// import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {  FileText, Upload, Edit, Search,  Moon, Sun, Plus } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import Logout from '@/components/Logout'
+import axios from 'axios'
+import domains from '@/app/conf'
 
 export default function DoctorDashboard() {
   const [darkMode, setDarkMode] = useState(true)
-  const [patientName, setPatientName] = useState("John Doe")
-  const [patientAge, setPatientAge] = useState(35)
-  const [patientGender, setPatientGender] = useState("Male")
-  const [reportContent, setReportContent] = useState("Patient shows normal vital signs. No significant issues detected during the general check-up.")
+
+  const [access, setAccess] = useState(false)
+  const [accessUser, setAccessUser] = useState<any>(false)
   const {user, loading} = useAuth();
   useEffect(() => {
     const storedDarkMode = localStorage.getItem('darkMode')
@@ -28,6 +29,58 @@ export default function DoctorDashboard() {
     }
   }, [])
 
+
+  const checkAccess = () => {
+    const token = window.localStorage.getItem("token");
+    axios
+      .get(`${domains.AUTH_HOST}/doctor/v1/check/access`, {
+        headers: { Authorization: "Auth " + token },
+      })
+      .then((res) => {
+        if (res.data.Success) {
+          setAccess(res.data.access);
+        } else if (res.data.Error) {
+          window.location.href = "/doctor/dashboard"
+          setAccess(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+
+  const getData = ()=>{
+    const token = window.localStorage.getItem("token");
+
+    axios
+    .get(`${domains.AUTH_HOST}/doctor/v1/get/access/data`, {
+      headers: { Authorization: "Auth " + token },
+    })
+    .then((res) => {
+      console.log(res)
+      if (res.data.Success) {
+        setAccessUser(res.data.user);
+        // setPatientName(res.data.user.firstName + " " + res.data.user.lastName)
+      } else if (res.data.Error) {
+        setAccessUser(false);
+        window.location.href = "/doctor/dashboard"
+
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  }
+
+  useEffect(() => {
+    checkAccess();
+  }, []);
+
+  useEffect(() => {
+    getData()
+  
+  }, [access])
 
   useEffect(() => {
   if(!loading && user){
@@ -102,19 +155,20 @@ export default function DoctorDashboard() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="patientName" className={darkMode ? 'text-gray-300' : 'text-gray-700'}>Patient Name</Label>
-                    <Input id="patientName" value={patientName} onChange={(e) => setPatientName(e.target.value)} className={darkMode ? 'bg-gray-700 text-white' : 'bg-white'} />
+                    <Input disabled id="patientName" value={accessUser && accessUser.firstName + " " + accessUser.lastName} className={darkMode ? 'bg-gray-700 text-white' : 'bg-white'} />
                   </div>
                   <div>
                     <Label htmlFor="patientAge" className={darkMode ? 'text-gray-300' : 'text-gray-700'}>Age</Label>
-                    <Input id="patientAge" type="number" value={patientAge} onChange={(e) => setPatientAge(parseInt(e.target.value))} className={darkMode ? 'bg-gray-700 text-white' : 'bg-white'} />
+                    <Input disabled id="patientAge" type="number" value={accessUser && accessUser.age ? accessUser.age : "NA"} 
+                    className={darkMode ? 'bg-gray-700 text-white' : 'bg-white'} />
                   </div>
                   <div>
                     <Label htmlFor="patientGender" className={darkMode ? 'text-gray-300' : 'text-gray-700'}>Gender</Label>
-                    <Input id="patientGender" value={patientGender} onChange={(e) => setPatientGender(e.target.value)} className={darkMode ? 'bg-gray-700 text-white' : 'bg-white'} />
+                    <Input disabled id="patientGender" value={accessUser && accessUser.gender ? accessUser.gender : "NA"}  className={darkMode ? 'bg-gray-700 text-white' : 'bg-white'} />
                   </div>
                   <div>
                     <Label htmlFor="patientId" className={darkMode ? 'text-gray-300' : 'text-gray-700'}>Patient ID</Label>
-                    <Input id="patientId" value="HC123456789" readOnly className={`${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100'} cursor-not-allowed`} />
+                    <Input disabled id="patientId" value={accessUser && accessUser.id} readOnly className={`${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100'} cursor-not-allowed`} />
                   </div>
                 </div>
               </CardContent>
@@ -198,13 +252,13 @@ export default function DoctorDashboard() {
                       </div>
                       <div>
                         <Label htmlFor="reportContent" className={darkMode ? 'text-gray-300' : 'text-gray-700'}>Latest Report</Label>
-                        <Textarea 
+                        {/* <Textarea 
                           id="reportContent" 
                           value={reportContent} 
                           onChange={(e) => setReportContent(e.target.value)} 
                           rows={6}
                           className={darkMode ? 'bg-gray-700 text-white' : 'bg-white'}
-                        />
+                        /> */}
                       </div>
                       <Button>Save Report</Button>
                     </div>

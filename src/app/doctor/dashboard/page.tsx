@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -8,25 +7,50 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 // import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LogOut, Moon, Sun, Lock } from "lucide-react";
+import { Moon, Sun, Lock, User } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import Logout from "@/components/Logout";
+import domains from "@/app/conf";
+import axios from "axios";
 
 export default function DoctorDashboard() {
   const [darkMode, setDarkMode] = useState(true);
+  const [access, setAccess] = useState<any>(false);
   //   const [searchQuery, setSearchQuery] = useState("");
   const { user, loading } = useAuth();
   useEffect(() => {
-      if(!loading && !user){
-        window.location.href = "/auth/doctor/login"
+    if (!loading && !user) {
+      window.location.href = "/auth/doctor/login";
+    }
+    if (!loading && user) {
+      if (user.user.role == "user") {
+        window.location.href = "/user/dashboard";
       }
-      if(!loading && user){
-        if(user.user.role == "user"){
-        window.location.href = "/user/dashboard"
+    }
+  }, [user, loading]);
 
+  const checkAccess = () => {
+    const token = window.localStorage.getItem("token");
+    axios
+      .get(`${domains.AUTH_HOST}/doctor/v1/check/access`, {
+        headers: { Authorization: "Auth " + token },
+      })
+      .then((res) => {
+        if (res.data.Success) {
+          setAccess(res.data.access);
+        } else if (res.data.Error) {
+          setAccess(false);
         }
-      }
-  }, [user, loading])
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    checkAccess();
+  }, []);
+
   const greet = () => {
     const currentHour = new Date().getHours();
 
@@ -123,15 +147,18 @@ export default function DoctorDashboard() {
           <motion.div variants={fadeIn} className="md:col-span-2">
             <Card>
               <CardHeader>
-                <span
-                  className={darkMode ? "text-white" : "text-blue-600"}
-                >
+                <span className={darkMode ? "text-white" : "text-blue-600"}>
                   {/* Search Patients */}
                   <h1>{greet()}</h1>
                 </span>
               </CardHeader>
               <CardContent>
-                <span><h1>Dr. {user && user.user.firstName} {user && user.user.lastName}</h1></span>
+                <span>
+                  <h1>
+                    Dr. {user && user.user.firstName}{" "}
+                    {user && user.user.lastName}
+                  </h1>
+                </span>
                 {/* <div className="flex items-center space-x-2">
                   <Input
                     type="text"
@@ -160,12 +187,17 @@ export default function DoctorDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <Link href="/doctor/request-access">
+                  {access ?  <Link href="/doctor/dashboard/patient">
+                    <Button className="w-full justify-start">
+                      <User className="h-4 w-4 mr-2" />
+                      Access Patient {access && access.userId}
+                    </Button>
+                  </Link>  : <Link href="/doctor/request-access">
                     <Button className="w-full justify-start">
                       <Lock className="h-4 w-4 mr-2" />
                       Request Patient Access
                     </Button>
-                  </Link>
+                  </Link>}
                   {/* <Button className="w-full justify-start">
                     <User className="h-4 w-4 mr-2" />
                     View Profile
@@ -211,7 +243,7 @@ export default function DoctorDashboard() {
           >
             &copy; {new Date().getFullYear()} CareCloud. All rights reserved.
           </p>
-        <Logout />
+          <Logout />
         </div>
       </footer>
     </div>

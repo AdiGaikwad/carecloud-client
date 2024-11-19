@@ -20,6 +20,7 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { REGEXP_ONLY_DIGITS } from "input-otp";
 
 export default function RequestAccess() {
   const [darkMode, setDarkMode] = useState(true);
@@ -38,6 +39,10 @@ export default function RequestAccess() {
   }
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [successOtp, setSuccessOtp] = useState(false);
+
+  const [successmsg, setSuccessmsg] = useState(false);
+  const [otpMain, setOtp] = useState<any>(false);
   const [type, setType] = useState("email");
 
   const handleChange = (e: any) => {
@@ -82,25 +87,99 @@ export default function RequestAccess() {
     setError("");
     setSuccess(false);
     setFetchLoading(true);
-
+    setSuccessOtp(false)
     const body = {
-      patientId: type == "email" ? patientId : type == "id" ? "CCH-" + patientId : patientId,
+      patientId:
+        type == "email"
+          ? patientId
+          : type == "id"
+          ? "CCH-" + patientId
+          : patientId,
       doctorId: user && user.user.id,
     };
     const token = window.localStorage.getItem("token");
+
+    const send = () => {
+      axios
+        .post(`${domains.AUTH_HOST}/auth/v1/ask/doctor/access`, body, {
+          headers: { Authorization: "Authorization " + token },
+        })
+        .then((res) => {
+          setFetchLoading(false);
+          if (res.data.Success) {
+            setOtpDisplay(true);
+            setSuccess(true);
+            setSuccessmsg(res.data.msg);
+            setTimeout(() => {
+              setSuccess(false);
+            }, 2500);
+          }
+          if (res.data.Error && res.data.msg) {
+            setError(res.data.msg);
+          }
+        })
+        .catch((err) => {
+          setFetchLoading(false);
+          console.log(err);
+          setError(
+            "Unable to request access at the moment. Please try again later"
+          );
+        });
+    };
+
+    setTimeout(() => {
+      send();
+    }, 650);
+
+    // Here you would typically make an API call to verify the OTP and grant access
+    // For this example, we'll just simulate a successful request
+    if (patientId) {
+      console.log(patientId);
+      // setSuccess(true);
+    } else {
+      setError("Please fill in all fields");
+    }
+  };
+
+  const validateOtp = (e: React.FormEvent) => {
+    e.preventDefault();
+    setFetchLoading(true);
+    setOtpDisplay(false);
+    setSuccess(false)
+    setSuccessOtp(false)
+    setError("")
+    const token = window.localStorage.getItem("token");
+
+    const body = {
+      patientId:
+      type == "email"
+        ? patientId
+        : type == "id"
+        ? "CCH-" + patientId
+        : patientId,
+      otp: otpMain,
+      duration: 60
+    };
+
+    const sendValidate = () =>{
+
     axios
-      .post(`${domains.AUTH_HOST}/auth/v1/ask/doctor/access`, body, {
-        headers: { Authorization: "Authorization " + token },
-      })
+    .post(`${domains.AUTH_HOST}/auth/v1/grant/doctor/access`, body, {
+      headers: { Authorization: "Authorization " + token },
+    })
       .then((res) => {
         setFetchLoading(false);
+        setOtpDisplay(true);
+
         if (res.data.Success) {
-          setOtpDisplay(true);
-          setSuccess(true);
+          setSuccessOtp(true);
+          setSuccessmsg(res.data.msg);
           setTimeout(() => {
-          setSuccess(false);
-            
+            setSuccess(false);
           }, 2500);
+          setTimeout(() => {
+            window.location.href = "/doctor/dashboard"
+          }, 3000);
         }
         if (res.data.Error && res.data.msg) {
           setError(res.data.msg);
@@ -108,20 +187,18 @@ export default function RequestAccess() {
       })
       .catch((err) => {
         setFetchLoading(false);
+        setOtpDisplay(true);
+
         console.log(err);
         setError(
           "Unable to request access at the moment. Please try again later"
         );
       });
-
-    // Here you would typically make an API call to verify the OTP and grant access
-    // For this example, we'll just simulate a successful request
-    if (patientId) {
-      console.log(patientId);
-      setSuccess(true);
-    } else {
-      setError("Please fill in all fields");
     }
+
+    setTimeout(() => {
+      sendValidate()
+    }, 650);
   };
 
   return (
@@ -225,7 +302,9 @@ export default function RequestAccess() {
                     <Alert>
                       <AlertTitle>Success</AlertTitle>
                       <AlertDescription>
-                        Access request submitted successfully. Enter OTP
+                        {successmsg
+                          ? successmsg
+                          : "Access request submitted successfully. Enter OTP"}
                       </AlertDescription>
                     </Alert>
                   )}
@@ -236,44 +315,72 @@ export default function RequestAccess() {
               ) : (
                 otpDisplay && (
                   <div className=" justify-center">
-                    <div className="flex justify-center">
-                      <InputOTP maxLength={6}>
-                        <InputOTPGroup>
-                          <InputOTPSlot index={0} />
-                          <InputOTPSlot index={1} />
-                          <InputOTPSlot index={2} />
-                        </InputOTPGroup>
-                        <InputOTPSeparator />
-                        <InputOTPGroup>
-                          <InputOTPSlot index={3} />
-                          <InputOTPSlot index={4} />
-                          <InputOTPSlot index={5} />
-                        </InputOTPGroup>
-                      </InputOTP>
-                  
-                    </div>
+                    <form onSubmit={validateOtp}>
+                      <div className="flex justify-center">
+                        <InputOTP maxLength={6} onChange={(otp) => setOtp(otp)} pattern={REGEXP_ONLY_DIGITS}>
+                          <InputOTPGroup>
+                            <InputOTPSlot autoFocus index={0} />
+                            <InputOTPSlot index={1} />
+                            <InputOTPSlot index={2} />
+                          </InputOTPGroup>
+                          <InputOTPSeparator />
+                          <InputOTPGroup>
+                            <InputOTPSlot index={3} />
+                            <InputOTPSlot index={4} />
+                            <InputOTPSlot index={5} />
+                          </InputOTPGroup>
+                        </InputOTP>
+                      </div>
+                    </form>
+
                     <br />
-                    <div >
-                    {success && (
-                    <Alert>
-                      <AlertTitle>Success</AlertTitle>
-                      <AlertDescription>
-                        Access request submitted successfully. Enter OTP
-                      </AlertDescription>
+                    <div>
+                    {error && (
+                    <Alert variant="destructive">
+                      <AlertTitle>Error</AlertTitle>
+                      <AlertDescription>{error}</AlertDescription>
                     </Alert>
                   )}
-                  <div className="flex justify-center mt-4">
-                    
-                    <Button variant="default">
-                      Submit Otp
-                    </Button>
-                  </div>
+                      {successOtp && (
+                        <Alert variant="success">
+                          <AlertTitle>Success</AlertTitle>
+                          <AlertDescription>
+                            {successmsg
+                              ? successmsg
+                              : "Access Granted successfully !"}
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                      {success && (
+                        <Alert>
+                          <AlertTitle>Success</AlertTitle>
+                          <AlertDescription>
+                            {successmsg
+                              ? successmsg
+                              : "Access request submitted successfully. Enter OTP"}
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                      <div className="flex justify-center mt-4">
+                        <Button
+                          type="submit"
+                          onClick={validateOtp}
+                          variant="default"
+                        >
+                          Submit Otp
+                        </Button>
+                      </div>
                     </div>
                     <div className="flex">
                       <Button
                         variant="link"
                         className={darkMode ? "text-blue-400" : "text-blue-600"}
-                        onClick={()=> setOtpDisplay(false)}
+                        onClick={() => {
+                          setOtpDisplay(false);
+                          setPatientId("");
+                          setError("");
+
+                        }}
                       >
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         Change health Id or Email
