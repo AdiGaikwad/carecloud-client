@@ -84,6 +84,7 @@ export default function UserDashboard() {
                 setNotifications(res.data.notifications);
                 toast({
                   variant: "default",
+                  title: "Notifications",
                   description: "You have unread notifications ",
                   action: (
                     <Link

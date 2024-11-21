@@ -179,7 +179,7 @@ export default function RequestAccess() {
           }, 2500);
           setTimeout(() => {
             window.location.href = "/doctor/dashboard"
-          }, 1200);
+          }, 500);
         }
         if (res.data.Error && res.data.msg) {
           setError(res.data.msg);
