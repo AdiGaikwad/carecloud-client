@@ -15,6 +15,7 @@ import { useAuth } from '@/context/AuthContext'
 import Logout from '@/components/Logout'
 import axios from 'axios'
 import domains from '@/app/conf'
+import Link from 'next/link'
 
 export default function DoctorDashboard() {
   const [darkMode, setDarkMode] = useState(true)
@@ -245,10 +246,12 @@ export default function DoctorDashboard() {
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
                         <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-800'}`}>Patient Reports</h3>
+                          <Link href={"/doctor/dashboard/patient/new-report"}>
                         <Button>
                           <Plus className="h-4 w-4 mr-2" />
                           New Report
                         </Button>
+                          </Link>
                       </div>
                       <div>
                         <Label htmlFor="reportContent" className={darkMode ? 'text-gray-300' : 'text-gray-700'}>Latest Report</Label>
@@ -260,7 +263,7 @@ export default function DoctorDashboard() {
                           className={darkMode ? 'bg-gray-700 text-white' : 'bg-white'}
                         /> */}
                       </div>
-                      <Button>Save Report</Button>
+                      {/* <Button>Save Report</Button> */}
                     </div>
                   </TabsContent>
                 </Tabs>

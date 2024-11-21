@@ -12,9 +12,11 @@ import {
   FileText,
   Upload,
   Download,
-  Search,
   Moon,
   Sun,
+  Bell,
+  BellDot,
+  Shield,
 } from "lucide-react";
 
 import {
@@ -28,36 +30,25 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+
 // import axios from "axios";
 import { useAuth } from "@/context/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import HealthIdCard from "@/components/HealthIDCard";
 import Logout from "@/components/Logout";
+import axios from "axios";
+import domains from "@/app/conf";
+import { useToast } from "@/components/ui/use-toast";
+import Link from "next/link";
+import AccessManagementPage from "../access-management/page";
 
-
-const healthData = [
-  { month: "Jan", cholesterol: 180, bloodPressure: 120 },
-  { month: "Feb", cholesterol: 200, bloodPressure: 125 },
-  { month: "Mar", cholesterol: 190, bloodPressure: 118 },
-  { month: "Apr", cholesterol: 185, bloodPressure: 122 },
-  { month: "May", cholesterol: 195, bloodPressure: 116 },
-  { month: "Jun", cholesterol: 188, bloodPressure: 120 },
-];
 
 export default function UserDashboard() {
   const [healthScore, setHealthScore] = useState(78);
   const [darkMode, setDarkMode] = useState(true);
   const { user, loading } = useAuth();
-
+  const [notifications, setNotifications] = useState<any>(false);
+  const { toast } = useToast();
   if (!user && !loading) {
     window.location.href = "/auth/login";
   }
@@ -76,6 +67,52 @@ export default function UserDashboard() {
   //   });
   //   console.log(res);
   // };
+
+  useEffect(() => {
+    const checkRequest = () => {
+      if (typeof window !== "undefined") {
+        const token = window.localStorage.getItem("token");
+        axios
+          .get(`${domains.AUTH_HOST}/auth/v1/get/notifications`, {
+            headers: { Authorization: "Authorization " + token },
+          })
+          .then((res) => {
+            if (res.data.Success) {
+              const nots = res.data.notifications;
+              const unread = nots.find((n: any) => n.read == false);
+              if (unread) {
+                setNotifications(res.data.notifications);
+                toast({
+                  variant: "default",
+                  description: "You have unread notifications ",
+                  action: (
+                    <Link
+                      href={`/user/notifications`}
+                      className="inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium ring-offset-background transition-colors hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-muted/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-destructive-foreground group-[.destructive]:focus:ring-destructive"
+                    >
+                      Notifications
+                    </Link>
+                  ),
+                });
+              }
+              console.log(nots);
+            }
+
+            console.log(res.data);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+    };
+
+    const interval = setInterval(() => {
+      checkRequest();
+    }, 5000);
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
 
   useEffect(() => {
     // Check if dark mode preference is stored in localStorage
@@ -181,8 +218,16 @@ export default function UserDashboard() {
               </CardHeader>
               <CardContent className="flex justify-center">
                 <HealthIdCard
-                  patientName={user && `${user.user.firstName} ${user.user.lastName}`}
-                  healthId={user  && `${user.user.id.split("-")[0]} ${user.user.id.split("-")[1].match(/.{1,4}/g).join(" ")}`}
+                  patientName={
+                    user && `${user.user.firstName} ${user.user.lastName}`
+                  }
+                  healthId={
+                    user &&
+                    `${user.user.id.split("-")[0]} ${user.user.id
+                      .split("-")[1]
+                      .match(/.{1,4}/g)
+                      .join(" ")}`
+                  }
                   darkMode={darkMode}
                 />
               </CardContent>
@@ -222,7 +267,7 @@ export default function UserDashboard() {
                       darkMode ? "text-gray-300" : "text-gray-600"
                     }`}
                   >
-                    Overall Health Score
+                    Profile Completion
                   </span>
                   <span
                     className={`text-sm font-medium ${
@@ -233,8 +278,6 @@ export default function UserDashboard() {
                   </span>
                 </div>
                 <Progress value={healthScore} className="w-full" />
-
-                
               </CardContent>
             </Card>
           </motion.div>
@@ -250,6 +293,32 @@ export default function UserDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-4">
+                  {/* <Link href={"/user/notifications"} > */}
+                  <Link
+                    href={"/user/notifications"}
+                    variant="outline"
+                    className={`flex flex-col items-center justify-center h-24 rounded-md ${
+                      darkMode
+                        ? "bg-gray-700 hover:bg-gray-600"
+                        : "bg-blue-50 hover:bg-blue-100"
+                    }`}
+                  >
+                    {notifications ? (
+                      <BellDot
+                        className={`h-6 w-6 mb-2 animate-bounce ${
+                          darkMode ? "text-blue-400" : "text-blue-600"
+                        }`}
+                      />
+                    ) : (
+                      <Bell
+                        className={`h-6 w-6 mb-2 ${
+                          darkMode ? "text-blue-400" : "text-blue-600"
+                        }`}
+                      />
+                    )}
+                    <span>Notifications</span>
+                  </Link>
+                  {/* </Link> */}
                   <Button
                     variant="outline"
                     className={`flex flex-col items-center justify-center h-24 ${
@@ -315,27 +384,12 @@ export default function UserDashboard() {
                     />
                     <span>Download Reports</span>
                   </Button>
-                  <Button
-                    variant="outline"
-                    className={`flex flex-col items-center justify-center h-24 ${
-                      darkMode
-                        ? "bg-gray-700 hover:bg-gray-600"
-                        : "bg-blue-50 hover:bg-blue-100"
-                    }`}
-                  >
-                    <Search
-                      className={`h-6 w-6 mb-2 ${
-                        darkMode ? "text-blue-400" : "text-blue-600"
-                      }`}
-                    />
-                    <span>Search Diagnoses</span>
-                  </Button>
                 </div>
               </CardContent>
             </Card>
           </motion.div>
 
-          <motion.div variants={fadeIn} className="md:col-span-3">
+          {/* <motion.div variants={fadeIn} className="md:col-span-3">
             <Card>
               <CardHeader>
                 <CardTitle
@@ -388,8 +442,55 @@ export default function UserDashboard() {
                 </ResponsiveContainer>
               </CardContent>
             </Card>
+          </motion.div> */}
+          <motion.div variants={fadeIn} className="md:col-span-3">
+            {/* <Card>
+              <CardHeader>
+                <CardTitle
+                  className={darkMode ? "text-white" : "text-blue-600"}
+                >
+                  Access Management
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center space-x-2">
+                      <Shield
+                        className={`h-6 w-6 ${
+                          darkMode ? "text-blue-400" : "text-blue-600"
+                        }`}
+                      />
+                      <span
+                        className={`font-semibold ${
+                          darkMode ? "text-white" : "text-gray-800"
+                        }`}
+                      >
+                        Active Access Grants
+                      </span>
+                    </div>
+                    <span
+                      className={`text-2xl font-bold ${
+                        darkMode ? "text-white" : "text-blue-600"
+                      }`}
+                    >
+                      3
+                    </span>
+                  </div>
+                
+                  <Link
+                    href="/user/access-management"
+                    className="flex w-3/12  justify-between items-center"
+                  >
+                    <Button className=" justify-center mt-4 flex  items-center">
+                      Manage Access
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card> */}
+            <AccessManagementPage card={true} darkMode={darkMode} />
           </motion.div>
-
           <motion.div variants={fadeIn} className="md:col-span-3">
             <Card>
               <CardHeader>
@@ -744,7 +845,7 @@ export default function UserDashboard() {
           >
             &copy; {new Date().getFullYear()} CareCloud. All rights reserved.
           </p>
-        <Logout />
+          <Logout />
         </div>
       </footer>
     </div>

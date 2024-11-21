@@ -158,7 +158,7 @@ export default function RequestAccess() {
         ? "CCH-" + patientId
         : patientId,
       otp: otpMain,
-      duration: 60
+      duration: 30  // 30 minutes access
     };
 
     const sendValidate = () =>{
