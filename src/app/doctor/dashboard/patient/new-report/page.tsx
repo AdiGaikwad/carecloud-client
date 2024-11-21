@@ -18,8 +18,6 @@ import { useAuth } from '@/context/AuthContext'
 
 export default function NewReportPage() {
   const [darkMode, setDarkMode] = useState(true)
-  const [patientName, setPatientName] = useState("John Doe")
-  const [patientId, setPatientId] = useState("HC 1234 5678 9012")
   const [access, setAccess] = useState(false)
   const [accessUser, setAccessUser] = useState<any>(false)
   const {user, loading} = useAuth();
@@ -157,11 +155,11 @@ export default function NewReportPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="patientName">Patient Name</Label>
-                    <Input id="patientName" value={patientName} readOnly />
+                    <Input id="patientName" value={accessUser && accessUser.firstName + " " + accessUser.lastName} readOnly />
                   </div>
                   <div>
                     <Label htmlFor="patientId">Patient ID</Label>
-                    <Input id="patientId" value={patientId} readOnly />
+                    <Input id="patientId" value={accessUser && accessUser.id} readOnly />
                   </div>
                 </div>
 
