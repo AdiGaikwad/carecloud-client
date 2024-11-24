@@ -339,20 +339,11 @@ export default function DoctorDashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <Tabs defaultValue="files">
+                <Tabs defaultValue="reports">
                   <TabsList
                     className={darkMode ? "bg-gray-700" : "bg-blue-100"}
                   >
-                    <TabsTrigger
-                      value="files"
-                      className={
-                        darkMode
-                          ? "data-[state=active]:bg-gray-800"
-                          : "data-[state=active]:bg-white"
-                      }
-                    >
-                      Files
-                    </TabsTrigger>
+                   
                     <TabsTrigger
                       value="reports"
                       className={
@@ -362,6 +353,16 @@ export default function DoctorDashboard() {
                       }
                     >
                       Reports
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="files"
+                      className={
+                        darkMode
+                          ? "data-[state=active]:bg-gray-800"
+                          : "data-[state=active]:bg-white"
+                      }
+                    >
+                      Files
                     </TabsTrigger>
                   </TabsList>
                   <TabsContent value="files">
@@ -438,7 +439,7 @@ export default function DoctorDashboard() {
                           </Button>
                         </Link>
                       </div>
-                      <div>
+                      {accessUser && accessUser.reports[0] ? <div>
                         <br />
                         <span className="flex">
                           Patient Name:{" "}
@@ -448,7 +449,7 @@ export default function DoctorDashboard() {
                         <span className="flex">
                           Report Type:{" "}
                           {accessUser &&
-                            accessUser.reports[0].type.toUpperCase()}
+                            accessUser.reports[0] ?  accessUser.reports[0].type.toUpperCase() : "No reports"}
                         </span>
 
                         <span className="flex">
@@ -476,7 +477,7 @@ export default function DoctorDashboard() {
                           rows={6}
                           className={darkMode ? 'bg-gray-700 text-white' : 'bg-white'}
                         /> */}
-                      </div>
+                      </div>: <div>No reports have been created</div>}
                       {/* <Button>Save Report</Button> */}
                     </div>
                   </TabsContent>
