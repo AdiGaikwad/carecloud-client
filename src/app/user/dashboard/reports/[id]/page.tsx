@@ -21,6 +21,10 @@ type Report = {
   patientName: string;
   patientId: string;
   date: string;
+  doctor: {
+    firstName: string,
+    lastName: string
+  };
   reportType: "general" | "specialist" | "followUp" | "emergency";
   symptoms: string;
   diagnosis: string;
@@ -49,17 +53,16 @@ type Report = {
 export default function ViewSingleReportPage() {
   const [darkMode, setDarkMode] = useState(true);
   const [report, setReport] = useState<Report | null>(null);
-  const [access, setAccess] = useState(false);
-  const [accessUser, setAccessUser] = useState<any>(false);
   const { user, loading } = useAuth();
   const { toast } = useToast();
   const params = useParams();
 
-  const transformToReport = (input): Report => {
+  const transformToReport = (input: any): Report => {
     return {
       id: input.id,
       patientName: input.title || "Unknown Patient", // Use title or default to 'Unknown Patient'
       patientId: input.userId,
+      doctor: input.doctor,
       reportType: input.type || "Unknown Report", // Use type or default to 'Unknown Report'
       date: new Date(input.updatedAt).toString().split("G")[0], // Format date as 'YYYY-MM-DD'
       symptoms: input.symptoms || "No symptoms provided",
@@ -70,56 +73,30 @@ export default function ViewSingleReportPage() {
     };
   };
 
-  const checkAccess = () => {
-    const token = window.localStorage.getItem("token");
-    axios
-      .get(`${domains.AUTH_HOST}/doctor/v1/check/access`, {
-        headers: { Authorization: "Auth " + token },
-      })
-      .then((res) => {
-        if (res.data.Success) {
-          setAccess(res.data.access);
-        } else if (res.data.Error) {
-          window.location.href = "/doctor/dashboard/reports";
-          setAccess(false);
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: "Report Not found ",
-          });
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
   const getData = () => {
     const token = window.localStorage.getItem("token");
 
     axios
-      .get(`${domains.AUTH_HOST}/doctor/v1/get/access/data`, {
+      .get(`${domains.AUTH_HOST}/auth/v1/get/reports`, {
         headers: { Authorization: "Auth " + token },
       })
       .then((res) => {
-        console.log(res);
         if (res.data.Success) {
-          setAccessUser(res.data.user);
-          if (res.data.user.reports) {
-            const all = res.data.user.reports;
+          if (res.data.reports) {
+            const all = res.data.reports;
             let theone = params.id;
-            let found = all.find((m) => m.id == theone);
+            let found = all.find((m: any) => m.id == theone);
+            console.log(found)
             if (found) {
               setReport(transformToReport(found));
             } else {
-              window.location.href = "/doctor/dashboard/patient/reports";
+              window.location.href = "/user/dashboard/reports";
             }
             // transformToReport()
           }
           // setPatientName(res.data.user.firstName + " " + res.data.user.lastName)
         } else if (res.data.Error) {
-          setAccessUser(false);
-          window.location.href = "/doctor/dashboard";
+          window.location.href = "/user/dashboard";
         }
       })
       .catch((err) => {
@@ -128,21 +105,17 @@ export default function ViewSingleReportPage() {
   };
 
   useEffect(() => {
-    checkAccess();
+    getData();
   }, []);
 
   useEffect(() => {
-    getData();
-  }, [access]);
-
-  useEffect(() => {
     if (!loading && user) {
-      if (user.user.role == "user") {
-        window.location.href = "/user/dashboard";
+      if (user.user.role == "doctor") {
+        window.location.href = "/doctor/dashboard";
       }
     }
     if (!loading && !user) {
-      window.location.href = "/auth/doctor/login";
+      window.location.href = "/auth/login";
     }
   }, [user, loading]);
 
@@ -223,7 +196,7 @@ export default function ViewSingleReportPage() {
                 <Moon className="h-5 w-5" />
               )}
             </Button>
-            <Link href="/doctor/dashboard/patient">
+            <Link href="/user/dashboard">
               <Button variant="ghost">Dashboard</Button>
             </Link>
             <Button variant="ghost" size="icon">
@@ -246,7 +219,7 @@ export default function ViewSingleReportPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div className="flex items-center space-x-4">
-                <Link href="/doctor/dashboard/patient/reports">
+                <Link href="/user/dashboard/reports">
                   <Button variant="ghost" size="icon">
                     <ArrowLeft className="h-5 w-5" />
                   </Button>
@@ -260,10 +233,10 @@ export default function ViewSingleReportPage() {
                 </CardTitle>
               </div>
               <div className="flex space-x-2">
-                <Button variant="outline" size="icon" onClick={()=> window.print()}>
+                <Button variant="outline" size="icon" onClick={()=>window.print()}>
                   <Printer className="h-5 w-5" />
                 </Button>
-                <Button variant="outline" size="icon" onClick={()=> window.print()}>
+                <Button variant="outline" size="icon" onClick={()=>window.print()}>
                   <Download className="h-5 w-5" />
                 </Button>
               </div>
@@ -277,8 +250,7 @@ export default function ViewSingleReportPage() {
                         darkMode ? "text-white" : "text-gray-800"
                       }`}
                     >
-                      {accessUser &&
-                        accessUser.firstName + " " + accessUser.lastName}
+                      {user && user.user.firstName + " " + user.user.lastName}
                     </h2>
                     <p
                       className={`text-sm ${
@@ -367,8 +339,9 @@ export default function ViewSingleReportPage() {
                     className={`text-sm ${
                       darkMode ? "text-gray-400" : "text-gray-600"
                     }`}
-                  > 
-                    Report created by: Dr. {user && user.user.firstName + " " + user.user.lastName}
+                  >
+                    Report created by: Dr. 
+                    {report &&  report.doctor.firstName + " " + report.doctor.lastName}
                   </p>
                   {/* <Button variant="outline">Edit Report</Button> */}
                 </div>

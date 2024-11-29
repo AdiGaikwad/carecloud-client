@@ -24,48 +24,48 @@ type Report = {
   reportType: 'general' | 'specialist' | 'followUp'  | 'emergency';
 }
 
-const mockReports: Report[] = [
-  {
-    id: '1',
-    patientName: 'John Doe',
-    patientId: 'HC 1234 5678 9012',
-    reportType: 'General Checkup',
-    date: '2023-06-15',
-    status: 'completed'
-  },
-  {
-    id: '2',
-    patientName: 'Jane Smith',
-    patientId: 'HC 2345 6789 0123',
-    reportType: 'Specialist Consultation',
-    date: '2023-06-14',
-    status: 'pending'
-  },
-  {
-    id: '3',
-    patientName: 'Alice Johnson',
-    patientId: 'HC 3456 7890 1234',
-    reportType: 'Follow-up',
-    date: '2023-06-13',
-    status: 'reviewed'
-  },
-  {
-    id: '4',
-    patientName: 'Bob Brown',
-    patientId: 'HC 4567 8901 2345',
-    reportType: 'Emergency',
-    date: '2023-06-12',
-    status: 'completed'
-  },
-  {
-    id: '5',
-    patientName: 'Carol White',
-    patientId: 'HC 5678 9012 3456',
-    reportType: 'General Checkup',
-    date: '2023-06-11',
-    status: 'pending'
-  },
-]
+// const mockReports: Report[] = [
+//   {
+//     id: '1',
+//     patientName: 'John Doe',
+//     patientId: 'HC 1234 5678 9012',
+//     reportType: 'General Checkup',
+//     date: '2023-06-15',
+//     status: 'completed'
+//   },
+//   {
+//     id: '2',
+//     patientName: 'Jane Smith',
+//     patientId: 'HC 2345 6789 0123',
+//     reportType: 'Specialist Consultation',
+//     date: '2023-06-14',
+//     status: 'pending'
+//   },
+//   {
+//     id: '3',
+//     patientName: 'Alice Johnson',
+//     patientId: 'HC 3456 7890 1234',
+//     reportType: 'Follow-up',
+//     date: '2023-06-13',
+//     status: 'reviewed'
+//   },
+//   {
+//     id: '4',
+//     patientName: 'Bob Brown',
+//     patientId: 'HC 4567 8901 2345',
+//     reportType: 'Emergency',
+//     date: '2023-06-12',
+//     status: 'completed'
+//   },
+//   {
+//     id: '5',
+//     patientName: 'Carol White',
+//     patientId: 'HC 5678 9012 3456',
+//     reportType: 'General Checkup',
+//     date: '2023-06-11',
+//     status: 'pending'
+//   },
+// ]
 
 const transformDataArray = (inputArray) => {
     return inputArray.map((input) => ({
@@ -175,7 +175,7 @@ export default function ViewReportsPage() {
     report.id.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  const getStatusBadge = (status: Report['status']) => {
+  const getStatusBadge = (status: Report['reportType']) => {
     switch (status) {
       case 'general':
         return <Badge className="bg-green-500">{status}</Badge>

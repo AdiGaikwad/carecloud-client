@@ -30,7 +30,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-
 // import axios from "axios";
 import { useAuth } from "@/context/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -41,7 +40,6 @@ import domains from "@/app/conf";
 import { useToast } from "@/components/ui/use-toast";
 import Link from "next/link";
 import AccessManagementPage from "../access-management/page";
-
 
 export default function UserDashboard() {
   const [healthScore, setHealthScore] = useState(78);
@@ -320,9 +318,9 @@ export default function UserDashboard() {
                     <span>Notifications</span>
                   </Link>
                   {/* </Link> */}
-                  <Button
-                    variant="outline"
-                    className={`flex flex-col items-center justify-center h-24 ${
+                  <Link
+                    href={"/user/dashboard/reports"}
+                    className={`flex flex-col items-center rounded-md justify-center h-24 ${
                       darkMode
                         ? "bg-gray-700 hover:bg-gray-600"
                         : "bg-blue-50 hover:bg-blue-100"
@@ -333,8 +331,8 @@ export default function UserDashboard() {
                         darkMode ? "text-blue-400" : "text-blue-600"
                       }`}
                     />
-                    <span>View Records</span>
-                  </Button>
+                    <span>View Reports</span>
+                  </Link>
 
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
@@ -370,9 +368,9 @@ export default function UserDashboard() {
                     </AlertDialogContent>
                   </AlertDialog>
 
-                  <Button
-                    variant="outline"
-                    className={`flex flex-col items-center justify-center h-24 ${
+                  <Link
+                    href={"/user/dashboard/reports"}
+                    className={`flex flex-col items-center justify-center h-24 p-2 rounded-md ${
                       darkMode
                         ? "bg-gray-700 hover:bg-gray-600"
                         : "bg-blue-50 hover:bg-blue-100"
@@ -384,7 +382,7 @@ export default function UserDashboard() {
                       }`}
                     />
                     <span>Download Reports</span>
-                  </Button>
+                  </Link>
                 </div>
               </CardContent>
             </Card>
