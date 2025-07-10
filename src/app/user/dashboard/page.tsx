@@ -40,6 +40,8 @@ import domains from "@/app/conf";
 import { useToast } from "@/components/ui/use-toast";
 import Link from "next/link";
 import AccessManagementPage from "../access-management/page";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+
 
 export default function UserDashboard() {
   const [healthScore, setHealthScore] = useState(78);
@@ -65,7 +67,14 @@ export default function UserDashboard() {
   //   });
   //   console.log(res);
   // };
-
+  const healthData = [
+    { month: 'Jan', cholesterol: 180, bloodPressure: 120 },
+    { month: 'Feb', cholesterol: 200, bloodPressure: 125 },
+    { month: 'Mar', cholesterol: 190, bloodPressure: 118 },
+    { month: 'Apr', cholesterol: 185, bloodPressure: 122 },
+    { month: 'May', cholesterol: 195, bloodPressure: 116 },
+    { month: 'Jun', cholesterol: 188, bloodPressure: 120 },
+  ]
   useEffect(() => {
     const checkRequest = () => {
       if (typeof window !== "undefined") {
@@ -388,7 +397,7 @@ export default function UserDashboard() {
             </Card>
           </motion.div>
 
-          {/* <motion.div variants={fadeIn} className="md:col-span-3">
+          <motion.div variants={fadeIn} className="md:col-span-3">
             <Card>
               <CardHeader>
                 <CardTitle
@@ -441,7 +450,7 @@ export default function UserDashboard() {
                 </ResponsiveContainer>
               </CardContent>
             </Card>
-          </motion.div> */}
+          </motion.div>
           <motion.div variants={fadeIn} className="md:col-span-3">
             {/* <Card>
               <CardHeader>
