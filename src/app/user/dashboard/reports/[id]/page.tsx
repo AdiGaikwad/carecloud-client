@@ -84,8 +84,8 @@ export default function ViewSingleReportPage() {
         if (res.data.Success) {
           if (res.data.reports) {
             const all = res.data.reports;
-            let theone = params.id;
-            let found = all.find((m: any) => m.id == theone);
+            const theone = params.id;
+            const found = all.find((m: any) => m.id == theone);
             console.log(found)
             if (found) {
               setReport(transformToReport(found));

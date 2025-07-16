@@ -107,8 +107,8 @@ export default function ViewSingleReportPage() {
           setAccessUser(res.data.user);
           if (res.data.user.reports) {
             const all = res.data.user.reports;
-            let theone = params.id;
-            let found = all.find((m) => m.id == theone);
+            const theone = params.id;
+            const found = all.find((m) => m.id == theone);
             if (found) {
               setReport(transformToReport(found));
             } else {

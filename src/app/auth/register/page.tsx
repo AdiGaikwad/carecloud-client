@@ -63,7 +63,6 @@ export default function RegisterPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-             
               <div className="space-y-2">
                 <Label htmlFor="name">First Name</Label>
                 <Input
@@ -73,7 +72,7 @@ export default function RegisterPage() {
                     required: "First Name is required",
                   })}
                 />
-                {errors.name && (
+                {typeof errors.name?.message === "string" && (
                   <p className="text-red-500 text-sm">{errors.name.message}</p>
                 )}
               </div>
@@ -96,7 +95,6 @@ export default function RegisterPage() {
                   id="email"
                   type="email"
                   placeholder="stephen@strange.com"
-
                   {...register("email", { required: "Email is required" })}
                 />
                 {errors.email && (
@@ -127,7 +125,7 @@ export default function RegisterPage() {
                 <p className="text-red-500 text-sm">{fetchErrors}</p>
               )}
               <Button type="submit" className="w-full">
-              {loading ? <Loader className="animate-spin" /> : "Register" }  
+                {loading ? <Loader className="animate-spin" /> : "Register"}
               </Button>
             </form>
           </CardContent>
@@ -144,7 +142,7 @@ export default function RegisterPage() {
           </CardFooter>
         </Card>
       </motion.div>
-     
+
       {healthId && (
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
@@ -152,7 +150,6 @@ export default function RegisterPage() {
           transition={{ duration: 0.5 }}
           className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50"
         >
-          
           <Card className="w-[350px]">
             <CardHeader>
               <CardTitle>Registration Successful!</CardTitle>
