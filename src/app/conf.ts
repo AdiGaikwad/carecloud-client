@@ -1,4 +1,3 @@
-import { env } from "process"
 
 interface Domains {
     AUTH_HOST: string;
@@ -6,7 +5,7 @@ interface Domains {
   
 
 const domains : Domains = {
-    AUTH_HOST: "http://developer.adi:5000",
+    AUTH_HOST: process.env.NODE_ENV == "development" ? "http://developer.adi:5000" : "https://carecloud-auth.rocketrigs.in/",
     // PROTOCOL: process.env.NODE_ENV == "development" ? "http://" : "https://"
 
 }
