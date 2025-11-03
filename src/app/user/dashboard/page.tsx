@@ -16,7 +16,6 @@ import {
   Sun,
   Bell,
   BellDot,
-  Shield,
 } from "lucide-react";
 
 import {

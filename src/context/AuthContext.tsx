@@ -20,7 +20,7 @@ export const AuthProvider = ({ children } : any) => {
         const response = await axios.get(`${domains.AUTH_HOST}/auth/v1/get/user/data`, {
             headers: {
               "Content-Type": "application/json",
-            //   "Authorization": "Authorization " + 
+              "Authorization": "Authorization " + window.localStorage.getItem("token")
             },
             withCredentials: true,
           });
