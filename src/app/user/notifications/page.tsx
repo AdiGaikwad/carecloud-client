@@ -95,7 +95,12 @@ export default function NotificationsPage() {
         axios
           .get(`${domains.AUTH_HOST}/auth/v1/get/notifications`, {
             withCredentials: true,
-          })
+           headers:{
+            "Authorization": "Authorization " + window.localStorage.getItem("token")
+           }
+          },  
+        
+        )
           .then((res) => {
             if (res.data.Success) {
               setNotifications(res.data.notifications);
@@ -137,6 +142,9 @@ export default function NotificationsPage() {
         `${domains.AUTH_HOST}/auth/v1/read/notifications`,
         {
           withCredentials: true,
+          headers:{
+            "Authorization": "Authorization " + window.localStorage.getItem("token")
+          }
         }
       );
       console.log(read)
